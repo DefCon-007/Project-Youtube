@@ -70,7 +70,8 @@ def make_spreadsheet():
     worksheet.write('J1',"No. of Subscribers")
     worksheet.write('K1',"Channel URL")
     a=2
-    while a<len(video_link)+2 :
+    min_len=[len(video_name),len(video_link),len(views),len(likes),len(dislikes),len(date),len(cat),len(upl_name),len(sub_no),len(channel_url)]
+    while a<min(min_len)+2 :
         worksheet.write('A'+str(a),str(a-1)+".")
         worksheet.write('B'+str(a),video_name[a-2])
         worksheet.write('C'+str(a),video_link[a-2])
