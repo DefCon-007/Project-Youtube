@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import xlsxwriter
 import os
 import urllib.request
+import pprint
+from pytube import YouTube
 def replace_with_newlines(element):
     text = ''
     for elem in element.recursiveChildGenerator():
@@ -56,11 +58,11 @@ def make_spreadsheet():
     worksheet.set_column('G:G',15)
     worksheet.set_column('H:H',20)
     worksheet.set_column('I:I',20)
-    worksheet.set_column('J:J',30)
-    worksheet.set_column('K:K',20)
+    worksheet.set_column('J:J',20)
+    worksheet.set_column('K:K',30)
     worksheet.write('A1',"Serial No.")
     worksheet.write("B1","Name")
-    worksheet.write('C1',"Video Link")
+    worksheet.write('C1',"Search Result Link")
     worksheet.write('D1',"No. of Views")
     worksheet.write('E1',"No. of likes")
     worksheet.write('F1',"No. of Dislikes")
@@ -104,11 +106,18 @@ def upl_pic ():
                 img_path=os.path.abspath(name+"/"+img_name)
                 if a.get('src')[0] is 'h':
                    urllib.request.urlretrieve(a.get('src'),img_path)
-
-
 def create_folder(f_name) : # creates a folder if it doesn't exists
     if not os.path.exists(f_name):
         os.makedirs(f_name)
+def download_video_via_url(video_url):  # this ffunction will take video url as input and download the corresponding video
+    yt=YouTube(video_url)
+    print("The available formats and quality of %s are as follows :" % yt.filename)
+    pprint(yt.get_videos())
+    vid_for=input("Please select appropriate file format and quality (e.g. flv 480p) : ")
+    print("The download of %s in " % yt.filename + vid_for+" quality is starting")
+    vid_for=vid_for.split(' ')
+    video = yt.get(vid_for[0],resolution=vid_for[1])
+    print("Download Competed")
 name=input("Enter what you want to search on Youtube ")
 page=input("Enter till how many pages you wish to search ")
 create_folder(name) # creating a folder
@@ -134,29 +143,37 @@ while a<int(page):
     soup=BeautifulSoup(text_source,'html.parser')  # making soup object
 
     for x in soup.findAll('a',{'class':'yt-uix-sessionlink yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 spf-link '}):  #getting content name
-           video_name.append(x.string)  #getting video name
-           video_link.append("https://www.youtube.com"+x.get('href'))  # getting video link
-           video_code=requests.get(video_link[v])
-           code_text=video_code.text
-           video_soup=BeautifulSoup(code_text,'html.parser') # making soup object of the video page
-           for y in video_soup.findAll('div',{'class':'watch-view-count'}): # getting views
-               views.append(y.string)
-           for y in video_soup.findAll('button',{"title":"I like this"}): # getting likes
-               likes.append(y.string)
-           for y in video_soup.findAll('button',{"title":"I dislike this"}): # getting dislikes
-               dislikes.append(y.string)
-           for y in video_soup.findAll('span',{'class':'yt-subscription-button-subscriber-count-branded-horizontal yt-subscriber-count'}):
-               sub_no.append(y.get('title'))  # getting number of subscribers of the uploader
-           pub_date(video_soup)
-           descp(video_soup)
-           cate(video_soup)
-           up_name(video_soup)
-          # upl_pic()
-
-           v+=1
+           if x.get('href').find("list") is -1 :  #to get only video urls and not the playlist
+               video_name.append(x.string)  #getting video name
+               video_link.append("https://www.youtube.com"+x.get('href'))  # getting video link
+               video_code=requests.get(video_link[v])
+               code_text=video_code.text
+               video_soup=BeautifulSoup(code_text,'html.parser') # making soup object of the video page
+               for y in video_soup.findAll('div',{'class':'watch-view-count'}): # getting views
+                   views.append(y.string)
+               for y in video_soup.findAll('button',{"title":"I like this"}): # getting likes
+                   likes.append(y.string)
+               for y in video_soup.findAll('button',{"title":"I dislike this"}): # getting dislikes
+                   dislikes.append(y.string)
+               for y in video_soup.findAll('span',{'class':'yt-subscription-button-subscriber-count-branded-horizontal yt-subscriber-count'}):
+                   sub_no.append(y.get('title'))  # getting number of subscribers of the uploader
+               pub_date(video_soup)
+               descp(video_soup)
+               cate(video_soup)
+               up_name(video_soup)
+              # upl_pic()
+               v+=1
 
     a+=1
 
 make_spreadsheet()
+serial_no=input("Now enter the serial number of the video(s) you wish to download.\nIn case of multiple video(s) separate their serial numbers with comma (e.g. 1,2,3,4,5 ) : ")
+serial_no.split(',')
+a=0
+while a<len(serial_no):
+    download_video_via_url("https://www.youtube.com"+video_link[int(serial_no[a])-1])
+    a+=1
+
+
 
 
