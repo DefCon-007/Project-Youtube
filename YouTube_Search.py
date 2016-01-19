@@ -109,7 +109,7 @@ def upl_pic ():
 def create_folder(f_name) : # creates a folder if it doesn't exists
     if not os.path.exists(f_name):
         os.makedirs(f_name)
-def download_video_via_url(video_url):  # this ffunction will take video url as input and download the corresponding video
+def download_video(video_url):  # this ffunction will take video url as input and download the corresponding video
     yt=YouTube(video_url)
     print("The available formats and quality of %s are as follows :" % yt.filename)
     pprint(yt.get_videos())
@@ -171,7 +171,7 @@ serial_no=input("Now enter the serial number of the video(s) you wish to downloa
 serial_no.split(',')
 a=0
 while a<len(serial_no):
-    download_video_via_url("https://www.youtube.com"+video_link[int(serial_no[a])-1])
+    download_video(video_link[int(serial_no[a])-1])
     a+=1
 
 
