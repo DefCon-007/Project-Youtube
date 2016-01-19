@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import xlsxwriter
 import os
 import urllib.request
-import pprint
+from pprint import pprint
 from pytube import YouTube
 def replace_with_newlines(element):
     text = ''
@@ -117,6 +117,7 @@ def download_video(video_url):  # this ffunction will take video url as input an
     print("The download of %s in " % yt.filename + vid_for+" quality is starting")
     vid_for=vid_for.split(' ')
     video = yt.get(vid_for[0],resolution=vid_for[1])
+    video.download("")
     print("Download Competed")
 name=input("Enter what you want to search on Youtube ")
 page=input("Enter till how many pages you wish to search ")
@@ -168,7 +169,9 @@ while a<int(page):
 
 make_spreadsheet()
 serial_no=input("Now enter the serial number of the video(s) you wish to download.\nIn case of multiple video(s) separate their serial numbers with comma (e.g. 1,2,3,4,5 ) : ")
-serial_no.split(',')
+serial_no=serial_no.split(',')
+if serial_no[-1] is '' or " " :
+    del serial_no[-1]
 a=0
 while a<len(serial_no):
     download_video(video_link[int(serial_no[a])-1])
